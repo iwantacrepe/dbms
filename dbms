@@ -1,0 +1,103 @@
+******
+CREATE TABLE Departments (
+  department_id NUMBER PRIMARY KEY,
+  department_name VARCHAR2(100)
+);
+**************
+INSERT INTO Departments (department_id, department_name) VALUES (1, 'IT');
+INSERT INTO Departments (department_id, department_name) VALUES (2, 'Finance');
+INSERT INTO Departments (department_id, department_name) VALUES (3, 'HR');
+
+
+******
+
+CREATE TABLE Employees (
+  employee_id NUMBER PRIMARY KEY,
+  employee_name VARCHAR2(100),
+  department_id NUMBER REFERENCES Departments(department_id),
+  Job VARCHAR2(100),
+  salary NUMBER,
+  Join_date DATE
+);
+******************8
+INSERT INTO Employees (employee_id, employee_name, department_id, Job, salary, Join_date) 
+VALUES (101, 'John', 1, 'Clerk', 60000, TO_DATE('2022-01-15', 'YYYY-MM-DD'));
+
+INSERT INTO Employees (employee_id, employee_name, department_id, Job, salary, Join_date) 
+VALUES (102, 'Smith', 1, 'President', 55000, TO_DATE('2022-02-20', 'YYYY-MM-DD'));
+
+INSERT INTO Employees (employee_id, employee_name, department_id, Job, salary, Join_date) 
+VALUES (103, 'David', 2, 'Manager', 65000, TO_DATE('2022-03-10', 'YYYY-MM-DD'));
+
+INSERT INTO Employees (employee_id, employee_name, department_id, Job, salary, Join_date) 
+VALUES (104, 'Anu', 3, 'Manager', 60000, TO_DATE('2022-04-05', 'YYYY-MM-DD'));
+
+INSERT INTO Employees (employee_id, employee_name, department_id, Job, salary, Join_date) 
+VALUES (105, 'Priya', 1, 'Clerk', 58000, TO_DATE('2022-05-12', 'YYYY-MM-DD'));
+
+
+******
+
+SELECT employee_name
+FROM Employees
+WHERE employee_name LIKE '_a%'
+OR employee_name LIKE '_A%';
+
+
+
+*******
+SELECT employee_name
+FROM Employees
+WHERE Join_date > TO_DATE('2022-01-01', 'YYYY-MM-DD');
+
+*****
+
+
+
+SELECT e.employee_name
+FROM Employees e
+JOIN (
+  SELECT department_id
+  FROM Employees
+  GROUP BY department_id
+  HAVING AVG(salary) > 50000
+) d ON e.department_id = d.department_id;
+
+
+
+*****
+SELECT Job, AVG(salary) as average_salary
+FROM Employees
+WHERE department_id = 1
+GROUP BY Job
+HAVING AVG(salary) > 20000
+ORDER BY AVG(salary) DESC;
+
+
+********
+
+
+CREATE OR REPLACE FUNCTION TotalEmployeesInDepartment(p_department_id IN Employees.department_id%TYPE)
+RETURN NUMBER IS
+  v_employee_count NUMBER;
+BEGIN
+  SELECT COUNT(*)
+  INTO v_employee_count
+  FROM Employees
+  WHERE department_id = p_department_id;
+
+  RETURN v_employee_count;
+END TotalEmployeesInDepartment;
+
+****
+
+DECLARE
+  v_total NUMBER;
+BEGIN
+  v_total := TotalEmployeesInDepartment(1); -- Replace 1 with your desired department_id
+  DBMS_OUTPUT.PUT_LINE('Total employees in department: ' || v_total);
+END;
+
+
+
+*******
